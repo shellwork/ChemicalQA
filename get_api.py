@@ -6,8 +6,8 @@ import json
 
 # 多个 ModelScope API Keys
 API_KEYS = [
-    "71eede1e-e7b7-4db0-82cd-0d7a8aff673a",
-    "df3c70cf-dd21-49ea-9174-c0120e958219"
+    "",
+    ""
 ]
 
 BASE_URL = "https://api-inference.modelscope.cn/v1/"
