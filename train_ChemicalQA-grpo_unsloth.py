@@ -200,18 +200,18 @@ def check_format(think_text):
     
     step1_patterns = [
         r"\*\*步骤1：结构解析\*\*",
-        r"1\. 核心骨架识别：",
-        r"2\. 关键官能团标注："
+        r"1\. \*\*核心骨架识别\*\*：",
+        r"2\. \*\*关键官能团标注\*\*："
     ]
     step2_patterns = [
         r"\*\*步骤2：物化性质与功能关联\*\*",
-        r"1\. 性质推断：",
-        r"2\. 关联问题关键词："
+        r"1\. \*\*性质推断\*\*：",
+        r"2\. \*\*关联问题关键词\*\*："
     ]
     step3_patterns = [
         r"\*\*步骤3：选项分析与排除\*\*",
-        r"1\. 正确选项：",
-        r"2\. 错误选项："
+        r"1\. \*\*正确选项\*\*：",
+        r"2\. \*\*错误选项\*\*："
     ]
     step4_patterns = [
         r"\*\*步骤4：结论\*\*"
@@ -241,7 +241,7 @@ def chemical_reward_func(prompts, completions, content, reasoning_content, **kwa
     基于新需求的奖励函数示例:
       prompts: 问题列表
       completions: 模型给出的回答列表
-      content: 正确答案(如 "C")
+      content: 正确答案
       reasoning_content: 数据集中标准推理文本
 
     返回:
@@ -290,9 +290,8 @@ def chemical_reward_func(prompts, completions, content, reasoning_content, **kwa
             else:
                 answer_score = 0.0
 
-        # 三项得分都在 0~1 区间，按权重 0.5/0.25/0.25 合并
-        #   reasoning_score * 0.5 + answer_score * 0.25 + format_score * 0.25
-        final_score = reasoning_score * 0.5 + answer_score * 0.25 + format_score * 0.25
+        # 三项得分都在 0~1 区间，按权重合并
+        final_score = reasoning_score * 0.6 + answer_score * 0.3 + format_score * 0.1
         rewards.append(final_score)
         
         if final_score >= 0.8:
@@ -424,12 +423,12 @@ def grpo_function(
 在 <answer> 标签中：
 仅写最终答案（例如 <answer>C</answer>），无需重复分析
 
-示例：
+回答模板：
 <think>
 **步骤1：结构解析**
 1. **核心骨架识别**：
 - 具体分析内容省略
-2. **关键官能团标注**： 
+2. **关键官能团标注**：
 - 具体分析内容省略
 
 **步骤2：物化性质与功能关联**
@@ -437,12 +436,10 @@ def grpo_function(
 - 具体分析内容省略
 
 **步骤3：选项分析与排除**
-1. **正确选项C**：
+1. **正确选项**：
 - 具体分析内容省略
-2. **错误选项排除**：
-- **A（p-menthane）**：具体分析内容省略
-- **B（daidzein）**：具体分析内容省略
-- **D（hesperetin）**：具体分析内容省略
+2. **错误选项**：
+- 具体分析内容省略
 
 **步骤4：结论**
 - 具体分析内容省略
