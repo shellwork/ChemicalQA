@@ -12,6 +12,7 @@ import os
 import random
 import re
 import math
+import time
 import numpy as np
 from dataclasses import dataclass
 from datetime import datetime
@@ -103,27 +104,45 @@ client = OpenAI(
     base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
 )
 
-def get_text_embedding(text):
+def get_text_embedding(
+    text: str,
+    max_retries: int = 3,   # 最大重试次数
+    base_delay: float = 1.0 # 首次重试的等待秒数
+):
     """
     将文本转换为通用文本向量。
     使用通义实验室的 text-embedding-v3 模型，得到 1024 维 float 向量。
+    如果所有重试都失败，则返回 1024 维零向量以避免训练中断。
     """
     if not text or not text.strip():
         return np.zeros((1024,), dtype=float)
-    
-    # 调用通用文本向量 API
-    response = client.embeddings.create(
-        model="text-embedding-v3",      # 模型名称
-        input=text,                     # 输入文本
-        dimensions=1024,               # 指定返回向量维度，可选 1024/768/512
-        encoding_format="float"        # 返回的向量编码格式
-    )
-    
-    # 注意：此处与旧版不同，需要通过对象属性来获取数据
-    embedding = response.data[0].embedding
 
-    # 转换为 numpy array 返回
-    return np.array(embedding, dtype=float)
+    # 指数回退的延迟
+    delay = base_delay
+
+    for attempt in range(max_retries):
+        try:
+            # 调用通用文本向量 API
+            response = client.embeddings.create(
+                model="text-embedding-v3",  # 模型名称
+                input=text,                 # 输入文本
+                dimensions=1024,           # 指定返回向量维度，可选 1024/768/512
+                encoding_format="float"    # 返回的向量编码格式
+            )
+
+            embedding = response.data[0].embedding
+            return np.array(embedding, dtype=float)
+
+        except Exception as e:
+            logger.warning(
+                f"调用 embeddings API 发生异常 (第 {attempt+1} 次)，错误信息: {e}"
+            )
+            if attempt < max_retries - 1:
+                time.sleep(delay)
+                delay *= 2
+            else:
+                logger.error(f"已达到最大重试次数 ({max_retries})，将返回零向量以继续训练。")
+                return np.zeros((1024,), dtype=float)
 
 
 def cosine_similarity(vec_a, vec_b):
