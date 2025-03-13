@@ -1,6 +1,6 @@
 # ChemicalQA: Structure Reasoning and Chemical Question Answering with GRPO
 
-This project employs the Generalized Reinforcement Policy Optimization (GRPO) method from the TRL library, optimized using the Unsloth framework to enable efficient reinforcement learning training. Unsloth significantly reduces GPU memory usage, allowing GRPO training to run effectively on a single GPU (e.g., NVIDIA RTX 4090 or A10 24G used in this project). The goal of this project is to fine-tune language models via reinforcement learning to accurately reason and answer structured chemistry-related questions, including molecular structure identification, functional group annotation, physicochemical property analysis, and answer selection.
+This project employs the Group Relative Policy Optimization (GRPO) method from the TRL library, optimized using the Unsloth framework to enable efficient reinforcement learning training. Unsloth significantly reduces GPU memory usage, allowing GRPO training to run effectively on a single GPU (e.g., NVIDIA RTX 4090 or A10 24G used in this project). The goal of this project is to fine-tune language models via reinforcement learning to accurately reason and answer structured chemistry-related questions, including molecular structure identification, functional group annotation, physicochemical property analysis, and answer selection.
 
 ## Key Features
 
