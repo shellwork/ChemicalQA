@@ -84,11 +84,11 @@ def format_reward_func(completions, **kwargs):
                 log_file = os.path.join("completion_samples", "completion_samples.txt")
                 with open(log_file, "a") as f:
                     f.write(f"\n\n==============\n")
-                    f.write(completion)  # 写入生成的输出
+                    f.write(completion)
 
             # 定义正则表达式模式，用于匹配 <think> 和 <answer> 标签
             regex = r"<think>(.*?)<\/think>\s*<answer>(.*?)<\/answer>"
-            match = re.search(regex, completion, re.DOTALL) # 使用正则表达式进行匹配
+            match = re.search(regex, completion, re.DOTALL) 
 
             if match is None or len(match.groups()) != 2:
                 rewards.append(0.0)  # 如果格式不正确，奖励为 0
@@ -191,12 +191,6 @@ def check_format(think_text):
     满足则得相应分值(每个大步骤 0.25 分，否则 0 分)
     """
     score = 0.0
-    # 按照要求的“步骤1...”、“步骤2...”、“步骤3...”、“步骤4...”等做正则/字符串查找
-    # 如果有多个小标题要求，比如步骤1:
-    #   "**步骤1：结构解析**"
-    #   "1. 核心骨架识别："
-    #   "2. 关键官能团标注："
-    # 则只有全部匹配到才给 0.25 分，否则不给分
     
     step1_patterns = [
         r"\*\*步骤1：结构解析\*\*",
@@ -224,7 +218,6 @@ def check_format(think_text):
                 return False
         return True
 
-    # 逐步检查
     if check_step_patterns(think_text, step1_patterns):
         score += 0.25
     if check_step_patterns(think_text, step2_patterns):
@@ -355,7 +348,7 @@ def grpo_function(
     # PEFT 模型
     model = FastLanguageModel.get_peft_model(
         model,
-        r = model_args.lora_r,  # 选择任意大于 0 的数字！建议使用 8, 16, 32, 64, 128
+        r = model_args.lora_r,
         target_modules = [
             "q_proj", "k_proj", "v_proj", "o_proj",
             "gate_proj", "up_proj", "down_proj",
@@ -371,7 +364,7 @@ def grpo_function(
 
     # 加载数据集
     dataset = load_dataset("json", data_files=dataset_args.dataset_id_or_path, split="train")
-    dataset = dataset.remove_columns(["cid"])  # 确保 dataset 里不含 cid
+    # dataset = dataset.remove_columns(["cid"])
 
     # 随机选择 10K 个样本
     # dataset = dataset.shuffle(seed=training_args.seed).select(range(10000))
@@ -495,7 +488,7 @@ def grpo_function(
     # 设置 GRPOTrainer
     trainer = GRPOTrainer(
         model = model,
-        # model=model_args.model_name_or_path,  # 模型名称或路径
+        # model=model_args.model_name_or_path,
         # 奖励函数列表，用于计算奖励分数
         reward_funcs=[
             format_reward_func,  # 格式奖励函数
